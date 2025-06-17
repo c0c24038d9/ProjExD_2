@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import time
 import pygame as pg
 
 
@@ -19,7 +20,7 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:  # 引数の型を提示
     """
     引数：こうかとんRectかばくだんRect
     戻り値：タプル（横方向判定結果，縦方向判定結果）
-    画面内ならTrue，画面外ならFalse
+    画面内ならTrue, 画面外ならFalse
     """
 
     yoko, tate = True, True  #初期値:画面の中
@@ -28,6 +29,27 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:  # 引数の型を提示
     if rct.top < 0 or HEIGHT < rct.bottom:
         tate = False
     return yoko, tate  #横方向,縦方向の画面内判定結果を返す
+
+
+def gameover(screen: pg.Surface) -> None:
+
+    """
+    こうかとんと爆弾が衝突すると、ゲームオーバー画面を表示
+    """
+    kk2_img = pg.image.load("fig/8.png")
+
+    black_img = pg.Surface((WIDTH,HEIGHT))
+    black_rct = black_img.get_rect()
+    pg.draw.rect(black_img, (0,0,0), pg.Rect(0,0,WIDTH,HEIGHT))  #黒の四角を画面サイズに描画
+    black_img.set_alpha(150)  #透明度
+    fonto = pg.font.Font(None, 80)
+    txt = fonto.render("GAME OVER",True, (255, 255, 255))  #ゲームオーバーの文字を表示
+    screen.blit(black_img, black_rct)  #ブラックアウト
+    screen.blit(kk2_img, [350,300])  #こうかとん右
+    screen.blit(kk2_img, [750,300])  #こうかとん左
+    screen.blit(txt, [400, 300])
+    pg.display.update()
+    time.sleep(5)  #5秒間表示(停止)
 
 
 def main():
@@ -51,10 +73,8 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bb_rct):  # こうかとんと爆弾の衝突判定
-            print("ゲームオーバー")
-            return        
-
-
+            gameover(screen)
+            return
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
