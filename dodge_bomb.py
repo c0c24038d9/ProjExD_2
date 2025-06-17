@@ -14,6 +14,18 @@ DELTA = {
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+KK_IMAGES = { # 
+    (0, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9),       # 静止 
+    (0, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 270, 0.9),    # 上 (270度回転) 
+    (0, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 90, 0.9),      # 下 (90度回転) 
+    (-5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9),    # 左 (180度回転) 
+    (5, 0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 180, 0.9),       # 右 (0度回転) 
+    (-5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 225, 0.9),   # 左上 (225度回転) 
+    (5, -5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 315, 0.9),    # 右上 (315度回転) 
+    (-5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 45, 0.9),    # 左下 (135度回転) 
+    (5, 5): pg.transform.rotozoom(pg.image.load("fig/3.png"), 135, 0.9)      # 右下 (45度回転) 
+}
+
 
 def check_bound(rct: pg.Rect) -> tuple[bool, bool]:  # 引数の型を提示
     
@@ -64,6 +76,12 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_img.set_colorkey((0, 0, 0))  #円の周りの黒を透過
         bb_imgs.append(bb_img)
     return bb_imgs, bb_accs
+
+def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
+    """
+    移動量の合計値タプルに対応する向きの画像Surfaceを返す
+    """
+    return KK_IMAGES.get(sum_mv, KK_IMAGES[(0, 0)])
 
 
 def main():
@@ -118,6 +136,8 @@ def main():
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):  #もし画面外(False)だったら
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  #移動を打ち消し
+        
+        kk_img = get_kk_img(tuple(sum_mv))
         screen.blit(kk_img, kk_rct)
 
         
