@@ -34,7 +34,7 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:  # 引数の型を提示
 def gameover(screen: pg.Surface) -> None:
 
     """
-    こうかとんと爆弾が衝突すると、ゲームオーバー画面を表示
+    ゲームオーバー時に, 半透明の黒い画面上に「Game Over」と表示し, 泣いているこうかとん画像を貼り付ける関数
     """
     kk2_img = pg.image.load("fig/8.png")
 
@@ -50,6 +50,20 @@ def gameover(screen: pg.Surface) -> None:
     screen.blit(txt, [400, 300])
     pg.display.update()
     time.sleep(5)  #5秒間表示(停止)
+
+
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    サイズの異なる爆弾Surfaceを要素としたリストと加速度リストを返す
+    """
+    bb_imgs = []
+    bb_accs = [a for a in range(1, 11)]
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0),(10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))  #円の周りの黒を透過
+        bb_imgs.append(bb_img)
+    return bb_imgs, bb_accs
 
 
 def main():
@@ -77,6 +91,12 @@ def main():
             return
         screen.blit(bg_img, [0, 0]) 
 
+
+        bb_imgs, bb_accs = init_bb_imgs()
+        avx = vx*bb_accs[min(tmr//500, 9)]
+        avy = vy*bb_accs[min(tmr//500, 9)]
+        bb_img = bb_imgs[min(tmr//500, 9)]
+
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for key, mv in DELTA.items():
@@ -99,12 +119,15 @@ def main():
         if check_bound(kk_rct) != (True, True):  #もし画面外(False)だったら
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  #移動を打ち消し
         screen.blit(kk_img, kk_rct)
-        bb_rct.move_ip(vx, vy)
+
+        
+        bb_rct.move_ip(avx, avy)
         yoko, tate = check_bound(bb_rct)
         if not yoko:  #横にはみ出ていたら
             vx *= -1  #横座標反転
         if not tate:  #縦にはみ出ていたら
             vy *= -1  #縦座標反転
+
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
