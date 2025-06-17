@@ -113,7 +113,7 @@ def main():
         bb_imgs, bb_accs = init_bb_imgs()
         avx = vx*bb_accs[min(tmr//500, 9)]
         avy = vy*bb_accs[min(tmr//500, 9)]
-        bb_img = bb_imgs[min(tmr//500, 9)]
+        bb_img = bb_imgs[min(tmr//500, 9)]  #500フレーム毎に拡大,最大9段階
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
